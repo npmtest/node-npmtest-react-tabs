@@ -10,7 +10,7 @@
 |--:|:--|
 | coverage : | [![istanbul-coverage](https://npmtest.github.io/node-npmtest-react-tabs/build/coverage.badge.svg)](https://npmtest.github.io/node-npmtest-react-tabs/build/coverage.html/index.html)|
 | test-report : | [![test-report](https://npmtest.github.io/node-npmtest-react-tabs/build/test-report.badge.svg)](https://npmtest.github.io/node-npmtest-react-tabs/build/test-report.html)|
-| build-artifacts : | [![build-artifacts](https://npmtest.github.io/node-npmtest-react-tabs/glyphicons_144_folder_open.png)](https://github.com/npmtest/node-npmtest-react-tabs/tree/gh-pages/build)|
+| test-server-github : | [![github.com test-server](https://npmtest.github.io/node-npmtest-react-tabs/GitHub-Mark-32px.png)](https://npmtest.github.io/node-npmtest-react-tabs/build/app/index.html) | | build-artifacts : | [![build-artifacts](https://npmtest.github.io/node-npmtest-react-tabs/glyphicons_144_folder_open.png)](https://github.com/npmtest/node-npmtest-react-tabs/tree/gh-pages/build)|
 
 - [https://npmtest.github.io/node-npmtest-react-tabs/build/coverage.html/index.html](https://npmtest.github.io/node-npmtest-react-tabs/build/coverage.html/index.html)
 
@@ -35,47 +35,19 @@
 ```json
 
 {
-    "name": "react-tabs",
-    "version": "0.8.3",
-    "description": "React tabs component",
-    "main": "lib/main.js",
-    "scripts": {
-        "clean": "rimraf lib",
-        "build:commonjs": "babel src/ --out-dir lib/ --ignore __tests__,__mocks__",
-        "build:umd": "webpack --devtool source-map --config webpack.build.js",
-        "build:umd:min": "cross-env MINIFY=1 webpack --devtool source-map --config webpack.build.js",
-        "build": "npm run clean && npm run build:commonjs",
-        "bundle": "mkdir -p dist && npm run build:umd && npm run build:umd:min",
-        "lint": "eslint src",
-        "preversion": "npm run lint && npm test && npm run build && npm run bundle && git add dist/ && git commit -m 'Publish: build bower distribution'",
-        "prepublish": "npm run build",
-        "test": "jest",
-        "start": "webpack-dev-server --inline --content-base examples/"
+    "author": {
+        "name": "Matt Zabriskie"
     },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/reactjs/react-tabs.git"
-    },
-    "author": "Matt Zabriskie",
-    "license": "MIT",
     "bugs": {
         "url": "https://github.com/reactjs/react-tabs/issues"
     },
-    "files": [
-        "dist",
-        "lib"
-    ],
-    "homepage": "https://github.com/reactjs/react-tabs",
-    "keywords": [
-        "react",
-        "tabs",
-        "a11y",
-        "react-component"
-    ],
-    "peerDependencies": {
-        "react": "^0.14.7 || ^15.0.0",
-        "react-dom": "^0.14.7 || ^15.0.0"
+    "dependencies": {
+        "classnames": "^2.2.0",
+        "create-react-class": "^15.5.2",
+        "js-stylesheet": "^0.0.1",
+        "prop-types": "^15.5.8"
     },
+    "description": "React tabs component",
     "devDependencies": {
         "babel-cli": "^6.9.0",
         "babel-core": "^6.9.1",
@@ -102,17 +74,63 @@
         "webpack": "^1.13.1",
         "webpack-dev-server": "^1.14.1"
     },
-    "dependencies": {
-        "classnames": "^2.2.0",
-        "create-react-class": "^15.5.2",
-        "js-stylesheet": "^0.0.1",
-        "prop-types": "^15.5.8"
+    "directories": {},
+    "dist": {
+        "shasum": "40bdc14c725c4dbf4befdfddf1153a93af92a894",
+        "tarball": "https://registry.npmjs.org/react-tabs/-/react-tabs-0.8.3.tgz"
     },
+    "files": [
+        "dist",
+        "lib"
+    ],
+    "gitHead": "8d6744b369fa81e5f47bd84e82b079e837288fd4",
+    "homepage": "https://github.com/reactjs/react-tabs",
     "jest": {
         "testPathDirs": [
             "src"
         ]
-    }
+    },
+    "keywords": [
+        "react",
+        "tabs",
+        "a11y",
+        "react-component"
+    ],
+    "license": "MIT",
+    "main": "lib/main.js",
+    "maintainers": [
+        {
+            "name": "danez"
+        },
+        {
+            "name": "mzabriskie"
+        }
+    ],
+    "name": "react-tabs",
+    "optionalDependencies": {},
+    "peerDependencies": {
+        "react": "^0.14.7 || ^15.0.0",
+        "react-dom": "^0.14.7 || ^15.0.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/reactjs/react-tabs.git"
+    },
+    "scripts": {
+        "build": "npm run clean && npm run build:commonjs",
+        "build:commonjs": "babel src/ --out-dir lib/ --ignore __tests__,__mocks__",
+        "build:umd": "webpack --devtool source-map --config webpack.build.js",
+        "build:umd:min": "cross-env MINIFY=1 webpack --devtool source-map --config webpack.build.js",
+        "bundle": "mkdir -p dist && npm run build:umd && npm run build:umd:min",
+        "clean": "rimraf lib",
+        "lint": "eslint src",
+        "prepublish": "npm run build",
+        "preversion": "npm run lint && npm test && npm run build && npm run bundle && git add dist/ && git commit -m 'Publish: build bower distribution'",
+        "start": "webpack-dev-server --inline --content-base examples/",
+        "test": "jest"
+    },
+    "version": "0.8.3",
+    "bin": {}
 }
 ```
 
