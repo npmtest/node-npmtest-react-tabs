@@ -526,7 +526,7 @@ local.templateApidocHtml = '\
                     console.error('apidocCreate - readExample - ' + file);
                     result = '';
                     result = ('\n\n\n\n\n\n\n\n' +
-                        local.fs.readFileSync(file, 'utf8') +
+                        local.fs.readFileSync(file, 'utf8').slice(0, 262144) +
                         '\n\n\n\n\n\n\n\n').replace((/\r\n*/g), '\n');
                 }, console.error);
                 return result;
@@ -631,7 +631,7 @@ tmp\\|\
 vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
 " ' +
 /* jslint-ignore-end */
-                            ' | sort | head -n 4096').toString()
+                            ' | sort | head -n 256').toString()
                         .split('\n')
                 );
             });
@@ -640,7 +640,7 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
                     options.exampleDict[file] = true;
                     return true;
                 }
-            }).slice(0, 100).map(readExample);
+            }).slice(0, 256).map(readExample);
             // init moduleMain
             local.tryCatchOnError(function () {
                 console.error('apidocCreate - requiring ' + options.dir + ' ...');
@@ -692,7 +692,7 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
                 tmp = options.circularList[key];
                 options.circularList.push(tmp && tmp.prototype);
             });
-            // cleanup circularList
+            // deduplicate circularList
             tmp = options.circularList;
             options.circularList = [];
             tmp.forEach(function (element) {
@@ -733,11 +733,11 @@ test\\|tmp\\|\
 vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
 " ' +
 /* jslint-ignore-end */
-                            ' | sort | head -n 4096').toString()
+                            ' | sort | head -n 256').toString()
                         .split('\n')
                 );
             });
-            options.ii = 0;
+            options.ii = 256;
             options.libFileList.every(function (file) {
                 local.tryCatchOnError(function () {
                     tmp = {};
@@ -762,10 +762,10 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
                     if (!(tmp.module && options.circularList.indexOf(tmp.module) < 0)) {
                         return;
                     }
-                    options.ii += 1;
+                    options.ii -= 1;
                     module[tmp.name] = tmp.module;
                 }, console.error);
-                return options.ii <= 100;
+                return options.ii;
             });
             local.apidocModuleDictAdd(options, options.moduleExtraDict);
             Object.keys(options.moduleDict).forEach(function (key) {
@@ -12160,9 +12160,10 @@ return Utf8ArrayToStr(bff);
                 );
                 // test standalone assets.app.js
                 local.fs.writeFileSync('tmp/assets.app.js', local.assetsDict['/assets.app.js']);
-                local.processSpawnWithTimeout(process.argv[0], ['assets.app.js'], {
+                local.processSpawnWithTimeout('node', ['assets.app.js'], {
                     cwd: 'tmp',
                     env: {
+                        PATH: local.env.PATH,
                         PORT: (Math.random() * 0x10000) | 0x8000,
                         npm_config_timeout_exit: 5000
                     },
@@ -12229,6 +12230,8 @@ return Utf8ArrayToStr(bff);
                         keywords: ['coverage', 'test', local.env.npm_package_buildCustomOrg]
                     }
                 }, 2);
+                break;
+            case 'scrapeitall':
                 break;
             }
             // build README.md
@@ -20101,7 +20104,7 @@ local.templateUiResponseAjax = '\
         global.utility2_rollup;
     local.local = local;
 /* jslint-ignore-begin */
-local._stateInit({"utility2":{"assetsDict":{"/assets.index.template.html":"<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>{{env.npm_package_name}} (v{{env.npm_package_version}})</title>\n<style>\n/*csslint\n    box-sizing: false,\n    universal-selector: false\n*/\n* {\n    box-sizing: border-box;\n}\nbody {\n    background: #dde;\n    font-family: Arial, Helvetica, sans-serif;\n    margin: 2rem;\n}\nbody > * {\n    margin-bottom: 1rem;\n}\n.utility2FooterDiv {\n    margin-top: 20px;\n    text-align: center;\n}\n</style>\n<style>\n/*csslint\n*/\ntextarea {\n    font-family: monospace;\n    height: 10rem;\n    width: 100%;\n}\ntextarea[readonly] {\n    background: #ddd;\n}\n</style>\n</head>\n<body>\n<!-- utility2-comment\n<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 0.5s, width 1.5s; width: 25%;\"></div>\nutility2-comment -->\n<h1>\n<!-- utility2-comment\n    <a\n        {{#if env.npm_package_homepage}}\n        href=\"{{env.npm_package_homepage}}\"\n        {{/if env.npm_package_homepage}}\n        target=\"_blank\"\n    >\nutility2-comment -->\n        {{env.npm_package_name}} (v{{env.npm_package_version}})\n<!-- utility2-comment\n    </a>\nutility2-comment -->\n</h1>\n<h3>{{env.npm_package_description}}</h3>\n<!-- utility2-comment\n<h4><a download href=\"assets.app.js\">download standalone app</a></h4>\n<button class=\"onclick onreset\" id=\"testRunButton1\">run internal test</button><br>\n<div id=\"testReportDiv1\" style=\"display: none;\"></div>\nutility2-comment -->\n\n\n\n<label>stderr and stdout</label>\n<textarea class=\"resettable\" id=\"outputTextareaStdout1\" readonly></textarea>\n<!-- utility2-comment\n{{#if isRollup}}\n<script src=\"assets.app.js\"></script>\n{{#unless isRollup}}\nutility2-comment -->\n<script src=\"assets.utility2.rollup.js\"></script>\n<script src=\"jsonp.utility2._stateInit?callback=window.utility2._stateInit\"></script>\n<script src=\"assets.npmtest_react_tabs.rollup.js\"></script>\n<script src=\"assets.example.js\"></script>\n<script src=\"assets.test.js\"></script>\n<!-- utility2-comment\n{{/if isRollup}}\nutility2-comment -->\n<div class=\"utility2FooterDiv\">\n    [ this app was created with\n    <a href=\"https://github.com/kaizhu256/node-utility2\" target=\"_blank\">utility2</a>\n    ]\n</div>\n</body>\n</html>\n"},"env":{"NODE_ENV":"test","npm_package_description":"#### basic test coverage for [react-tabs (v0.8.3)](https://github.com/reactjs/react-tabs) [![npm package](https://img.shields.io/npm/v/npmtest-react-tabs.svg?style=flat-square)](https://www.npmjs.org/package/npmtest-react-tabs) [![travis-ci.org build-status](https://api.travis-ci.org/npmtest/node-npmtest-react-tabs.svg)](https://travis-ci.org/npmtest/node-npmtest-react-tabs)","npm_package_homepage":"https://github.com/npmtest/node-npmtest-react-tabs","npm_package_name":"npmtest-react-tabs","npm_package_nameAlias":"npmtest_react_tabs","npm_package_version":"0.0.1"}}});
+local._stateInit({"utility2":{"assetsDict":{"/assets.index.template.html":"<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>{{env.npm_package_name}} (v{{env.npm_package_version}})</title>\n<style>\n/*csslint\n    box-sizing: false,\n    universal-selector: false\n*/\n* {\n    box-sizing: border-box;\n}\nbody {\n    background: #dde;\n    font-family: Arial, Helvetica, sans-serif;\n    margin: 2rem;\n}\nbody > * {\n    margin-bottom: 1rem;\n}\n.utility2FooterDiv {\n    margin-top: 20px;\n    text-align: center;\n}\n</style>\n<style>\n/*csslint\n*/\ntextarea {\n    font-family: monospace;\n    height: 10rem;\n    width: 100%;\n}\ntextarea[readonly] {\n    background: #ddd;\n}\n</style>\n</head>\n<body>\n<!-- utility2-comment\n<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 0.5s, width 1.5s; width: 25%;\"></div>\nutility2-comment -->\n<h1>\n<!-- utility2-comment\n    <a\n        {{#if env.npm_package_homepage}}\n        href=\"{{env.npm_package_homepage}}\"\n        {{/if env.npm_package_homepage}}\n        target=\"_blank\"\n    >\nutility2-comment -->\n        {{env.npm_package_name}} (v{{env.npm_package_version}})\n<!-- utility2-comment\n    </a>\nutility2-comment -->\n</h1>\n<h3>{{env.npm_package_description}}</h3>\n<!-- utility2-comment\n<h4><a download href=\"assets.app.js\">download standalone app</a></h4>\n<button class=\"onclick onreset\" id=\"testRunButton1\">run internal test</button><br>\n<div id=\"testReportDiv1\" style=\"display: none;\"></div>\nutility2-comment -->\n\n\n\n<label>stderr and stdout</label>\n<textarea class=\"resettable\" id=\"outputTextareaStdout1\" readonly></textarea>\n<!-- utility2-comment\n{{#if isRollup}}\n<script src=\"assets.app.js\"></script>\n{{#unless isRollup}}\nutility2-comment -->\n<script src=\"assets.utility2.rollup.js\"></script>\n<script src=\"jsonp.utility2._stateInit?callback=window.utility2._stateInit\"></script>\n<script src=\"assets.npmtest_react_tabs.rollup.js\"></script>\n<script src=\"assets.example.js\"></script>\n<script src=\"assets.test.js\"></script>\n<!-- utility2-comment\n{{/if isRollup}}\nutility2-comment -->\n<div class=\"utility2FooterDiv\">\n    [ this app was created with\n    <a href=\"https://github.com/kaizhu256/node-utility2\" target=\"_blank\">utility2</a>\n    ]\n</div>\n</body>\n</html>\n"},"env":{"NODE_ENV":"test","npm_package_description":"#### basic test coverage for [react-tabs (v0.8.3)](https://github.com/reactjs/react-tabs) [![npm package](https://img.shields.io/npm/v/npmtest-react-tabs.svg?style=flat-square)](https://www.npmjs.org/package/npmtest-react-tabs) [![travis-ci.org build-status](https://api.travis-ci.org/npmtest/node-npmtest-react-tabs.svg)](https://travis-ci.org/npmtest/node-npmtest-react-tabs)","npm_package_homepage":"https://github.com/npmtest/node-npmtest-react-tabs","npm_package_name":"npmtest-react-tabs","npm_package_nameAlias":"npmtest_react_tabs","npm_package_version":"2017.4.26"}}});
 /* jslint-ignore-end */
 }());
 /* script-end local._stateInit */

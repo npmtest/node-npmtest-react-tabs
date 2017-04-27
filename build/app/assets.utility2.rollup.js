@@ -507,7 +507,7 @@ local.templateApidocHtml = '\
                     console.error('apidocCreate - readExample - ' + file);
                     result = '';
                     result = ('\n\n\n\n\n\n\n\n' +
-                        local.fs.readFileSync(file, 'utf8') +
+                        local.fs.readFileSync(file, 'utf8').slice(0, 262144) +
                         '\n\n\n\n\n\n\n\n').replace((/\r\n*/g), '\n');
                 }, console.error);
                 return result;
@@ -612,7 +612,7 @@ tmp\\|\
 vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
 " ' +
 /* jslint-ignore-end */
-                            ' | sort | head -n 4096').toString()
+                            ' | sort | head -n 256').toString()
                         .split('\n')
                 );
             });
@@ -621,7 +621,7 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
                     options.exampleDict[file] = true;
                     return true;
                 }
-            }).slice(0, 100).map(readExample);
+            }).slice(0, 256).map(readExample);
             // init moduleMain
             local.tryCatchOnError(function () {
                 console.error('apidocCreate - requiring ' + options.dir + ' ...');
@@ -673,7 +673,7 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
                 tmp = options.circularList[key];
                 options.circularList.push(tmp && tmp.prototype);
             });
-            // cleanup circularList
+            // deduplicate circularList
             tmp = options.circularList;
             options.circularList = [];
             tmp.forEach(function (element) {
@@ -714,11 +714,11 @@ test\\|tmp\\|\
 vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
 " ' +
 /* jslint-ignore-end */
-                            ' | sort | head -n 4096').toString()
+                            ' | sort | head -n 256').toString()
                         .split('\n')
                 );
             });
-            options.ii = 0;
+            options.ii = 256;
             options.libFileList.every(function (file) {
                 local.tryCatchOnError(function () {
                     tmp = {};
@@ -743,10 +743,10 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
                     if (!(tmp.module && options.circularList.indexOf(tmp.module) < 0)) {
                         return;
                     }
-                    options.ii += 1;
+                    options.ii -= 1;
                     module[tmp.name] = tmp.module;
                 }, console.error);
-                return options.ii <= 100;
+                return options.ii;
             });
             local.apidocModuleDictAdd(options, options.moduleExtraDict);
             Object.keys(options.moduleDict).forEach(function (key) {
@@ -12141,9 +12141,10 @@ return Utf8ArrayToStr(bff);
                 );
                 // test standalone assets.app.js
                 local.fs.writeFileSync('tmp/assets.app.js', local.assetsDict['/assets.app.js']);
-                local.processSpawnWithTimeout(process.argv[0], ['assets.app.js'], {
+                local.processSpawnWithTimeout('node', ['assets.app.js'], {
                     cwd: 'tmp',
                     env: {
+                        PATH: local.env.PATH,
                         PORT: (Math.random() * 0x10000) | 0x8000,
                         npm_config_timeout_exit: 5000
                     },
@@ -12210,6 +12211,8 @@ return Utf8ArrayToStr(bff);
                         keywords: ['coverage', 'test', local.env.npm_package_buildCustomOrg]
                     }
                 }, 2);
+                break;
+            case 'scrapeitall':
                 break;
             }
             // build README.md
